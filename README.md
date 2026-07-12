@@ -1,0 +1,305 @@
+# Breaking the Poultry Cobweb: Forecasting Broiler Price Crashes in India Using Day-Old-Chick Prices as a Leading Indicator
+
+A Business Analytics case-study proposal reconstructing an unobservable national supply statistic from an observable market price, to forecast broiler farm-gate price crashes 42 days ahead.
+
+## Table of contents
+
+1. [Student Information](#1-student-information)
+2. [Business Domain](#2-business-domain)
+3. [Case Study Title](#3-case-study-title)
+4. [Business Problem Statement](#4-business-problem-statement)
+5. [The Research Gap](#5-the-research-gap)
+6. [Business Objectives](#6-business-objectives)
+7. [Planned Dataset Size](#7-planned-dataset-size)
+8. [Proposed Data Collection Method](#8-proposed-data-collection-method)
+9. [Modelling Approach](#9-modelling-approach)
+10. [Expected Business Impact](#10-expected-business-impact)
+11. [Limitations and Threats to Validity](#11-limitations-and-threats-to-validity)
+12. [Sources](#12-sources)
+
+---
+
+## 1. Student Information
+
+| Field | Value |
+|---|---|
+| Student Name | _____________________ |
+| Register Number | CB.SC.U4CSE23___ |
+| Class / Section | _____________________ |
+| Course | Business Analytics |
+| Programme | B.Tech CSE (3rd year), Amrita Vishwa Vidyapeetham |
+
+---
+
+## 2. Business Domain
+
+Agriculture and agri-commodity markets — specifically the poultry supply chain and price-risk analytics. The unit of interest is the regional broiler market, where farm-gate live-bird prices are set daily and are subject to recurrent boom-and-bust cycles.
+
+---
+
+## 3. Case Study Title
+
+**Breaking the Poultry Cobweb: Forecasting Broiler Price Crashes in India Using Day-Old-Chick Prices as a Leading Indicator.**
+
+---
+
+## 4. Business Problem Statement
+
+### (a) What is the business problem?
+
+The problem is the **cobweb cycle** in broiler production. The mechanism is self-reinforcing:
+
+1. Broiler price is high, so farmers place more day-old chicks.
+2. 40–45 days later, those birds all reach market weight at roughly the same time.
+3. Simultaneous supply produces a **glut**, and price crashes below the cost of production.
+4. Loss-making farmers exit or skip a cycle, so placements fall.
+5. 40–45 days later there is a **shortage**, and price spikes.
+6. The high price pulls farmers back in, and the cycle repeats.
+
+This is not a new observation. It is the textbook **Cobweb Theorem**, formally described by Mordecai Ezekiel in *The Cobweb Theorem* (1938). What is notable is that the cycle remains unresolved in Indian broiler markets in 2026 — the coordination failure that Ezekiel modelled almost a century ago still plays out on Indian rate sheets every quarter.
+
+### (b) Why is it important to solve?
+
+The cycle has always existed, but the **margin buffer that used to absorb a crash has been removed by the current feed crisis.** Feed is roughly 70% of broiler variable cost, and maize is 65–70% of feed. India's ethanol programme has diverted maize away from feed on a large scale: maize used for ethanol rose from 315 million litres of output equivalent (ESY 2022–23) to **2.86 billion litres (ESY 2023–24), about 42% of all ethanol**, and India became a **net maize importer in 2024** as exports collapsed from 1.9 million to about 0.5 million tonnes ([Down To Earth](https://www.downtoearth.org.in/agriculture/lost-in-maize)). Poultry and cattle feed, which consume 60–70% of India's maize, were the worst hit. Crisil Ratings has projected poultry profitability could **decline by up to 50% in the 2025/26 marketing year** ([Nutrinews `[link rot — verify]`](https://nutrinews.com/en/indias-poultry-sector-faces-feed-crisis-amid-gm-import-debate/)).
+
+When feed cost is high and margins are already thin, a price crash is no longer a bad quarter — it is an insolvency event. The economic-cost derivation in this section quantifies the exposure.
+
+### (c) Who will benefit?
+
+- **Broiler farmers and contract growers** — the party that bears the placement decision and, for independents, the price risk.
+- **Integrators** — Suguna, Venky's, Sneha, CP — who plan placements and bear grower price risk under contract.
+- **Feed mills** — whose demand is a direct function of bird numbers in production.
+- **Lenders and rating agencies** — who underwrite the sector and currently lack a forward supply signal (see Section 5).
+- **Policymakers** — who manage feed, trade, and farmer-distress interventions.
+
+### (d) How can data analytics contribute?
+
+The core insight is biological, not statistical:
+
+> A day-old chick placed today *is* a market-ready bird in 40–45 days. That is biology, not a modelling assumption. **The supply that will crash the market in six weeks has already been ordered.** The crash is therefore knowable in advance — if, and only if, someone is recording chick placements.
+
+Analytics contributes by supplying the missing observation. If placement volume were recorded, the future glut would be visible directly. It is not recorded in India — but the **price** of day-old chicks is published daily, and price is the market-clearing signal of placement demand. The project turns that published price into the forward supply signal that does not otherwise exist.
+
+### Economic Cost — derived, not fabricated
+
+The figures below are a transparent, assumption-labelled derivation. Each unit input is sourced in [Section 12](#12-sources). No aggregate loss figure is attributed to a source that does not state one.
+
+**Unit economics (sourced):**
+
+- Day-old chick: **₹20–25** ([The Global Statistics](https://www.theglobalstatistics.com/chicks-rate-today/))
+- Cost to raise a bird to market weight: **₹80–90/bird**; rearing **40–45 days** to **2–2.5 kg** ([The Global Statistics](https://www.theglobalstatistics.com/chicks-rate-today/))
+- India produces **~1.5 billion broilers/year**; **~65–70 million placements/week** ([PoultryApp](https://www.poultryapp.com/broiler-rates-in-india/))
+- Feed is **~70% of variable cost**; maize 65–70% and soymeal 25–30% of feed ([ICRA, March 2025](https://www.icra.in/Rating/DownloadResearchSummaryReport?id=6224))
+- Documented crash magnitude: broiler prices fell **18–19% month-on-month in West/South India in Feb 2025** ([ICRA, March 2025](https://www.icra.in/Rating/DownloadResearchSummaryReport?id=6224))
+- Documented loss precedent (2013–14 feed crisis): production cost hit **₹68/kg** against a farm-gate price of **₹57–58/kg** — a **₹10/kg loss** — and **20–30% of farmers suspended or closed operations** ([Food & Agribusiness](https://www.foodagribusiness.world/poultry/feed-price-hikes-cause-unrest-in-indian-poultry-sector))
+
+**Farm-level worked example:**
+
+```
+A 7,000-bird shed in a crash window:
+  Cost of production      Rs 88/bird   (mid-point of Rs 80-90)
+  Farm-gate in a glut     Rs 75/bird   (2 kg x Rs 37.5/kg after an ~18% crash)
+  Loss per bird           Rs 13
+  Loss per cycle          Rs 13 x 7,000 = Rs 91,000
+```
+
+**Sector-level order-of-magnitude estimate:**
+
+```
+ESTIMATE - derived, not published. Assumptions stated.
+  Annual production                    1.5 billion birds
+  Share sold in crash windows          assume 20%  -> 300 million birds
+  Loss per bird in a crash             Rs 10-20    (from the Rs 10/kg precedent x ~2 kg)
+  Implied annual value destruction     Rs 300-600 crore  (~USD 36-72 million)
+```
+
+*The 20% share is an assumption, not a measurement. The true figure depends on crash frequency and duration — which this project is designed to quantify for the first time. The estimate is presented so a reader can audit and replace each assumption, not as a published statistic.*
+
+---
+
+## 5. The Research Gap
+
+This is the intellectual core of the proposal, and it is stated honestly.
+
+### Claim 1 — The insight is NOT novel. In the US it is institutionalised.
+
+The United States has treated placements as a leading indicator for decades. The **USDA publishes a weekly Broiler Hatchery report** covering eggs set and chicks placed; a single recent week records **255.839 million eggs set and 197.497 million chicks placed** at 79.4% hatchability ([Brownfield Ag News `[403 to automated access — verify in browser]`](https://www.brownfieldagnews.com/news/broiler-placements-stay-2-ahead-of-the-2025-pace/)), and the figure is reported routinely — **199 million chicks placed** in the week ending 20 June 2026 ([US Foods](https://www.usfoods.com/tools-tips-and-ideas/articles-and-publications/farmer-s-report/chicken)). USDA's Economic Research Service explicitly adjusts its broiler production forecasts **"reflecting hatchery and placements data"** ([USDA ERS](https://www.ers.usda.gov/topics/animal-products/poultry-eggs/market-outlook)). The placement-to-price link is not a research hypothesis in the US; it is official methodology.
+
+### Claim 2 — India has no equivalent, and that is the gap.
+
+There is **no Indian broiler hatchery report** — no official weekly or regional placement statistic. The clearest evidence of the vacuum is who reads what: **ICRA, a credit rating agency, cites `Poultrybazaar` — a daily rate website — as its data source** in published poultry sector research ([ICRA, March 2025](https://www.icra.in/Rating/DownloadResearchSummaryReport?id=6224)). India's professional analysts read the same public webpage a farmer reads, because the public good the USDA has provided since the 1930s does not exist here.
+
+### Claim 3 — The contribution is the *instrument*, not the insight.
+
+> Placements are unobservable in India because nobody reports them. But the **day-old-chick price is observable** — and DOC price is the market-clearing price *of placement demand*.
+> **This project reconstructs an unobservable national statistic from an observable market price.**
+
+**Testable hypothesis:**
+
+> **H1:** `chick_price[t]` Granger-causes `broiler_price[t+42]`, and adds predictive power **beyond** what broiler price history alone provides.
+
+**Free secondary finding:**
+
+> **H2:** The cross-correlation between DOC price and broiler price should peak at a lag of ~40–45 days — independently recovering the biological grow-out cycle of a chicken from price data alone.
+
+---
+
+## 6. Business Objectives
+
+1. Build the **first public daily panel** of Indian broiler, day-old-chick, egg, and feed prices by region.
+2. Test whether **DOC price Granger-causes broiler price at t+42**.
+3. Estimate the lag empirically via **cross-correlation** and check it against the 40–45 day biological cycle.
+4. **Forecast** regional broiler farm-gate price 42 days ahead.
+5. Benchmark against an **autoregressive baseline** (broiler price from its own history) — the model only matters if it beats this.
+6. Produce a **"placement glut warning"**: a regional signal advising against chick placement when a crash is forecast.
+
+---
+
+## 7. Planned Dataset Size
+
+Approximately **20 regions × daily × 5 years ≈ 36,500 region-day records**, well above the 10,000-record minimum. **20 attributes** per record:
+
+| # | Attribute | Type | Source |
+|---|---|---|---|
+| 1 | region | categorical | Poultry Bazaar / Chicken Rate Today |
+| 2 | date | date | scrape date |
+| 3 | broiler_price (farm-gate) | numeric | Poultry Bazaar daily rate sheet |
+| 4 | chick_price (day-old-chick) | numeric | Poultry Bazaar chick rates |
+| 5 | chick_price_ma7 (7-day MA) | numeric | derived |
+| 6 | chick_price_yoy (YoY change) | numeric | derived |
+| 7 | egg_price (NECC) | numeric | NECC via Poultry Bazaar |
+| 8 | maize_price | numeric | Agmarknet |
+| 9 | soybean_meal_price | numeric | Agmarknet |
+| 10 | feed_cost_index | numeric | derived (maize + soymeal) |
+| 11 | gross_margin (broiler − feed cost) | numeric | derived |
+| 12 | broiler_price_lag_1 (t−1) | numeric | derived |
+| 13 | broiler_price_lag_7 (t−7) | numeric | derived |
+| 14 | broiler_price_lag_42 (t−42) | numeric | derived |
+| 15 | heat_stress_index | numeric | Open-Meteo |
+| 16 | rainfall | numeric | Open-Meteo |
+| 17 | birdflu_flag (region, 30-day window) | binary | DAHD / WOAH |
+| 18 | festival_or_fasting_flag | binary | public festival calendar |
+| 19 | day_of_week | categorical | derived |
+| 20 | month / season | categorical | derived |
+| — | **target: broiler_price at t+42** | numeric | derived from column 3 |
+
+---
+
+## 8. Proposed Data Collection Method
+
+Web scraping only — no surveys.
+
+**Forward crawl (daily, via cron / GitHub Actions):**
+
+- Poultry Bazaar daily rate sheet — broiler and chick rates by region ([rates](https://www.poultrybazaar.net/daily-rate-sheet/), [chick rates](https://www.poultrybazaar.net/daily-rate-sheet/chick-rates/))
+- `chickenratetoday.in` — live/retail broiler rates by city ([link](https://chickenratetoday.in/))
+- NECC egg rates (cross-listed on Poultry Bazaar)
+
+**Backward reconstruction (the key move):** the **Internet Archive Wayback Machine CDX API** (`http://web.archive.org/cdx/search/cdx?url=...&output=json`) lists every archived snapshot of a URL with its timestamp. The backfill scraper fetches each archived snapshot of the rate pages and parses the rate table out of the archived HTML. **This recovers years of history that was published daily and overwritten daily**, so the project is not hostage to the calendar — it does not have to wait years to accumulate a panel forward in time.
+
+**Joins:**
+
+- **Agmarknet** — daily maize and soybean-meal mandi prices, for the feed-cost index ([link](https://agmarknet.gov.in))
+- **DAHD / WOAH** — avian-influenza outbreak dates by district
+- **Open-Meteo** — heat-stress and rainfall
+- **Public festival calendar** — demand-side seasonality
+
+**Ethics:** public pages only, no login; `robots.txt` respected; rate-limited crawling; raw HTML archived for reproducibility; no personal data collected.
+
+---
+
+## 9. Modelling Approach
+
+**Baseline (must be beaten):** ARIMA / SARIMA on broiler price alone. This baseline is **structurally blind**: it can only chase the cycle, because the cause of the cycle — placements — is not present in its input data. It extrapolates the pattern; it cannot see the supply that has already been ordered.
+
+**Proposed:** SARIMAX with DOC price as an **exogenous regressor**; XGBoost / Ridge on the lag-feature panel.
+
+**Causality test:** Granger causality, DOC price → broiler price at t+42 (H1).
+
+**Lag recovery:** cross-correlation of DOC price against broiler price; the peak is expected near 40–45 days (H2).
+
+**Validation:** **walk-forward (rolling-origin) cross-validation only. Never random k-fold** — a random split leaks future observations into the training past on time-series data and produces a meaningless R².
+
+**Metrics:** MAE, RMSE, MAPE, and a **skill score versus a seasonal-naive baseline**.
+
+**Interpretability:** SHAP, to confirm the chick-price features (not just autoregressive lags) carry the model's forward information.
+
+---
+
+## 10. Expected Business Impact
+
+The decisive point is that the **forecast horizon matches the decision horizon exactly.** A broiler farmer makes essentially one recurring decision — *should I place chicks this week?* — and that decision commits him for 42 days. Every existing rate service tells him **today's** price, which is precisely the number that misleads him: today's high price is the trap that triggers the next glut. A 42-day-ahead forecast speaks to the decision the farmer is actually making, at the moment he is making it.
+
+| Stakeholder | Concrete benefit |
+|---|---|
+| Broiler farmer / contract grower | A "place / do not place this week" signal tied to the 42-day commitment, instead of a today-only rate that encourages placing into a coming glut. |
+| Integrator (Suguna, Venky's, Sneha, CP) | Regional placement planning against a forward price, smoothing throughput and reducing grower-loss exposure under contract. |
+| Feed mill | Forward view of bird numbers in production — an early read on feed demand for procurement and inventory. |
+| Lender / rating agency | A leading sector-stress indicator to replace reliance on the same daily rate webpage analysts currently read. |
+| Policymaker | An early-warning basis for feed, trade, and farmer-distress interventions before a crash matures. |
+
+---
+
+## 11. Limitations and Threats to Validity
+
+This section is deliberately blunt. It leads with the weakness in the project's own instrument.
+
+> **Does DOC price actually proxy placement volume?**
+> A high chick price may indicate strong farmer demand for chicks (the assumption behind this project) — **or constrained hatchery supply, which implies the opposite for future output.** Demand-driven and supply-driven price rises have *opposite* predictions for the market in six weeks, and they cannot be separated from price alone.
+> **Mitigations:** cross-check DOC price against hatchery listing volumes on IndiaMART / TradeIndia; examine whether DOC and broiler prices co-move (consistent with demand-driven placement) or diverge (consistent with a supply constraint); and report the proxy's weakness explicitly rather than burying it.
+
+Additional threats:
+
+- **Uneven Wayback coverage.** Snapshot frequency of the rate pages varies by page and period, so the reconstructed history will have gaps. Coverage will be measured and reported, not assumed complete.
+- **Administered prices.** Regional Broiler Coordination Committee rates are negotiated, not purely market-clearing, so the "price" is partly an administered number. This may attenuate or distort the price-signal relationship in some regions.
+- **Contract farming.** Under integration, the integrator — not the grower — bears the price risk. The model therefore matters most for the roughly one-third of production run by independent farmers ([PoultryApp](https://www.poultryapp.com/broiler-rates-in-india/)); its private value to contract growers is smaller.
+- **Structural breaks.** Bird-flu outbreaks and ethanol/trade policy shifts can break the historical price relationship, so a model fit on the past may misfire across a regime change. These are flagged as features where possible and acknowledged as residual risk where not.
+
+---
+
+## 12. Sources
+
+All links were checked for resolution. Confirmed-dead links are marked `[link rot — verify]`; links that block automated fetching but are expected to load in a browser are marked `[403 to automated access — verify in browser]`. No source was substituted for one that could not be read.
+
+**Foundational theory**
+
+- Ezekiel, M. (1938). "The Cobweb Theorem." *Quarterly Journal of Economics*, 52(2), 255–280. *(Cited bibliographically; no stable open-access URL asserted.)*
+
+**The Indian feed crisis (why the margin buffer is gone)**
+
+- Down To Earth — "Lost in maize." https://www.downtoearth.org.in/agriculture/lost-in-maize
+- Nutrinews — "India's poultry sector faces feed crisis amid GM import debate." `[link rot — verify]` https://nutrinews.com/en/indias-poultry-sector-faces-feed-crisis-amid-gm-import-debate/
+- ChiniMandi — interview with Poultry India President Uday Singh Bias. https://www.chinimandi.com/rising-ethanol-demand-drives-maize-prices-impacting-poultry-feed-costs-poultry-india-president-uday-singh-bias/
+- Poultry India — "Poultry Feed Crisis." `[link rot — verify]` https://www.poultryindia.co.in/poultry-feed-crisis-why-four-neighboring-countries-could-pos/
+- Food & Agribusiness — "Feed price hikes cause unrest in Indian poultry sector" (2013–14 precedent). https://www.foodagribusiness.world/poultry/feed-price-hikes-cause-unrest-in-indian-poultry-sector
+
+**The price crash, and the evidence of the data vacuum**
+
+- ICRA — Indian Poultry Industry, March 2025. https://www.icra.in/Rating/DownloadResearchSummaryReport?id=6224
+
+**Unit economics**
+
+- The Global Statistics — Chicks Rate Today. https://www.theglobalstatistics.com/chicks-rate-today/
+- PoultryApp — Broiler rates in India. https://www.poultryapp.com/broiler-rates-in-india/
+
+**The US comparison — proof the method works and that India lacks the instrument**
+
+- USDA Economic Research Service — Poultry & Eggs Market Outlook. https://www.ers.usda.gov/topics/animal-products/poultry-eggs/market-outlook
+- Brownfield Ag News — "Broiler placements stay 2% ahead of the 2025 pace." `[403 to automated access — verify in browser]` https://www.brownfieldagnews.com/news/broiler-placements-stay-2-ahead-of-the-2025-pace/
+- US Foods — Farmer's Report (Chicken). https://www.usfoods.com/tools-tips-and-ideas/articles-and-publications/farmer-s-report/chicken
+
+**Biological grow-out cycle (justifies the 42-day lag)**
+
+- *Poultry Science* (2025) — broiler performance under commercial conditions (4,842 commercial flocks; 42-day slaughter reference age). `[403 to automated access — verify in browser]` https://www.sciencedirect.com/science/article/pii/S0032579125009691
+
+**Data sources to be scraped**
+
+- Poultry Bazaar — daily rate sheet. https://www.poultrybazaar.net/daily-rate-sheet/
+- Poultry Bazaar — chick rates (the key leading-indicator variable). https://www.poultrybazaar.net/daily-rate-sheet/chick-rates/
+- Chicken Rate Today. https://chickenratetoday.in/
+- Agmarknet — maize and soybean-meal mandi prices. https://agmarknet.gov.in
+- Internet Archive Wayback CDX API. http://web.archive.org/cdx/search/cdx
+
+---
+
+*This repository is an academic case-study proposal. The scraper modules under `src/` are documented stubs at this stage; no scraping code runs in this commit. Derived economic figures are labelled as derived and are not attributed to any source that does not state them.*
