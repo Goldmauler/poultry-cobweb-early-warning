@@ -157,7 +157,7 @@ There is **no Indian broiler hatchery report** — no official weekly or regiona
 
 ## 7. Planned Dataset Size
 
-Approximately **20 regions × daily × 5 years ≈ 36,500 region-day records**, well above the 10,000-record minimum. **20 attributes** per record:
+The **10,000-record minimum is met by the historical backbone alone**: NECC egg rates across ~37 zones × daily × 2009–2026 yield well over 200,000 zone-day records (verified retrievable), joined with feed prices. The broiler-target panel below (~20 regions × daily) is assembled **forward** from the start of collection for the leading-indicator test; the attribute schema is the design target for that panel. **20 attributes** per record:
 
 | # | Attribute | Type | Source |
 |---|---|---|---|
@@ -187,22 +187,35 @@ Approximately **20 regions × daily × 5 years ≈ 36,500 region-day records**, 
 
 ## 8. Proposed Data Collection Method
 
-Web scraping only — no surveys.
+Web scraping only — no surveys. The method is a **hybrid of dense historical backfill (for series that were preserved) and forward daily collection (for series that were not)**. This design is the result of a feasibility check run before any scraper was built — see the honest note below.
 
-**Forward crawl (daily, via cron / GitHub Actions):**
+### 8.0 Feasibility finding (why the plan is hybrid, not pure backfill)
 
-- Poultry Bazaar daily rate sheet — broiler and chick rates by region ([rates](https://www.poultrybazaar.net/daily-rate-sheet/), [chick rates](https://www.poultrybazaar.net/daily-rate-sheet/chick-rates/))
+An earlier version of this plan proposed reconstructing the full daily history of the broiler and day-old-chick rate pages from the **Internet Archive Wayback Machine**. A coverage check (reproducible via [`scripts/wayback_feasibility.py`](scripts/wayback_feasibility.py)) showed this is not viable: the archive holds only ~33 captured days for the chick-rate page and ~20 for the broiler-rate page across 2019–2026 — roughly 60× too sparse for a daily panel. These committee-set rates are published fresh and overwritten daily, and were never preserved. **That vacuum is the project's own thesis, confirmed empirically.** The plan therefore backfills history only where a source genuinely retains it, and collects the rest forward from today.
+
+### 8.1 Historical backbone (dense, real, retrievable today)
+
+- **NECC egg rates — [e2necc.com](https://e2necc.com/home/eggprice) (verified).** A month/year POST form serves daily egg rates by zone back to **2009**. Verified working: one month returns ~1,100+ tidy rows across ~37 zones. Implemented in [`src/scrapers/egg_rates.py`](src/scrapers/egg_rates.py). This is the panel's dense historical spine.
+- **Feed prices — Agmarknet report generator** ([link](https://agmarknet.gov.in)) for multi-year daily maize and soybean-meal mandi prices, used to build the feed-cost index. (Agmarknet is a stateful portal; where deep history is impractical, feed cost is supplemented forward via the data.gov.in daily mandi-price API and monthly reference series.)
+
+### 8.2 Forward daily collection (the series with no retrievable history)
+
+Collected daily from today via cron / GitHub Actions, because no dense archive exists:
+
+- Poultry Bazaar — broiler and day-old-chick rates by region ([rates](https://www.poultrybazaar.net/daily-rate-sheet/), [chick rates](https://www.poultrybazaar.net/daily-rate-sheet/chick-rates/))
 - `chickenratetoday.in` — live/retail broiler rates by city ([link](https://chickenratetoday.in/))
-- NECC egg rates (cross-listed on Poultry Bazaar)
 
-**Backward reconstruction (the key move):** the **Internet Archive Wayback Machine CDX API** (`http://web.archive.org/cdx/search/cdx?url=...&output=json`) lists every archived snapshot of a URL with its timestamp. The backfill scraper fetches each archived snapshot of the rate pages and parses the rate table out of the archived HTML. **This recovers years of history that was published daily and overwritten daily**, so the project is not hostage to the calendar — it does not have to wait years to accumulate a panel forward in time.
+The sparse Wayback captures that *do* exist are retained as scattered historical validation anchors, not as a primary series.
 
-**Joins:**
+### 8.3 Joins
 
-- **Agmarknet** — daily maize and soybean-meal mandi prices, for the feed-cost index ([link](https://agmarknet.gov.in))
 - **DAHD / WOAH** — avian-influenza outbreak dates by district
 - **Open-Meteo** — heat-stress and rainfall
-- **Public festival calendar** — demand-side seasonality
+- **Public festival / fasting calendar** — demand-side seasonality
+
+### 8.4 Consequence for the analysis
+
+The historical backbone (egg + feed) supports a **fully validated forecasting model with walk-forward validation on real multi-year data**. The novel **day-old-chick → broiler 42-day leading-indicator test (H1/H2)** runs on the **forward-collected** chick and broiler series and is therefore reported as *accruing evidence*: the biological 42-day lag is anchored in literature and in cross-correlation as data accumulates, rather than claimed as fully validated at submission. This split is stated plainly rather than hidden.
 
 **Ethics:** public pages only, no login; `robots.txt` respected; rate-limited crawling; raw HTML archived for reproducibility; no personal data collected.
 
@@ -250,7 +263,7 @@ This section is deliberately blunt. It leads with the weakness in the project's 
 
 Additional threats:
 
-- **Uneven Wayback coverage.** Snapshot frequency of the rate pages varies by page and period, so the reconstructed history will have gaps. Coverage will be measured and reported, not assumed complete.
+- **No historical chick/broiler series (the binding data constraint).** The rate pages were never densely archived (feasibility-tested: ~20–33 Wayback days total), so the day-old-chick and broiler series exist only forward from the start of collection. The novel H1/H2 test therefore rests on a short and growing window at submission, not on years of history. This is the single largest limitation and is stated as such, not buried.
 - **Administered prices.** Regional Broiler Coordination Committee rates are negotiated, not purely market-clearing, so the "price" is partly an administered number. This may attenuate or distort the price-signal relationship in some regions.
 - **Contract farming.** Under integration, the integrator — not the grower — bears the price risk. The model therefore matters most for the roughly one-third of production run by independent farmers ([PoultryApp](https://www.poultryapp.com/broiler-rates-in-india/)); its private value to contract growers is smaller.
 - **Structural breaks.** Bird-flu outbreaks and ethanol/trade policy shifts can break the historical price relationship, so a model fit on the past may misfire across a regime change. These are flagged as features where possible and acknowledged as residual risk where not.
@@ -292,14 +305,16 @@ All links were checked for resolution. Confirmed-dead links are marked `[link ro
 
 - *Poultry Science* (2025) — broiler performance under commercial conditions (4,842 commercial flocks; 42-day slaughter reference age). `[403 to automated access — verify in browser]` https://www.sciencedirect.com/science/article/pii/S0032579125009691
 
-**Data sources to be scraped**
+**Data sources (verified during the feasibility phase)**
 
-- Poultry Bazaar — daily rate sheet. https://www.poultrybazaar.net/daily-rate-sheet/
-- Poultry Bazaar — chick rates (the key leading-indicator variable). https://www.poultrybazaar.net/daily-rate-sheet/chick-rates/
+- NECC egg rates — e2necc daily rate sheet by zone, historical to 2009 (verified working; the panel's historical backbone). https://e2necc.com/home/eggprice
+- data.gov.in — daily mandi commodity price API (maize, soybean; current-snapshot, used for forward feed collection). https://www.data.gov.in/resource/current-daily-price-various-commodities-various-markets-mandi
+- Agmarknet — maize and soybean-meal mandi prices (multi-year history via report generator). https://agmarknet.gov.in
+- Poultry Bazaar — daily rate sheet (broiler; forward collection). https://www.poultrybazaar.net/daily-rate-sheet/
+- Poultry Bazaar — chick rates (the key leading-indicator variable; forward collection). https://www.poultrybazaar.net/daily-rate-sheet/chick-rates/
 - Chicken Rate Today. https://chickenratetoday.in/
-- Agmarknet — maize and soybean-meal mandi prices. https://agmarknet.gov.in
-- Internet Archive Wayback CDX API. http://web.archive.org/cdx/search/cdx
+- Internet Archive Wayback CDX API (coverage tested: too sparse for backfill; retained only as scattered validation anchors). http://web.archive.org/cdx/search/cdx
 
 ---
 
-*This repository is an academic case-study proposal. The scraper modules under `src/` are documented stubs at this stage; no scraping code runs in this commit. Derived economic figures are labelled as derived and are not attributed to any source that does not state them.*
+*This repository is an academic case-study proposal with a verified working egg-rate scraper ([`src/scrapers/egg_rates.py`](src/scrapers/egg_rates.py)); the remaining scraper modules are documented stubs pending implementation. The data-collection plan is hybrid (historical backbone + forward collection) following the Wayback feasibility finding. Derived economic figures are labelled as derived and are not attributed to any source that does not state them.*

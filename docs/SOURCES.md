@@ -56,12 +56,16 @@ No source has been substituted for one that could not be read. No DOIs, authors,
 |---|---|---|
 | *Poultry Science* (2025) — broiler performance under commercial conditions | Analysis of **4,842 commercial broiler flocks** (Ross/Cobb); **42 days** is the standard slaughter reference age. Anchors the lag in peer-reviewed literature. | `[403 to automated access — verify in browser]` https://www.sciencedirect.com/science/article/pii/S0032579125009691 |
 
-## Data sources to be scraped
+## Data sources (verified during the feasibility phase)
 
-| Source | What it provides | Link |
-|---|---|---|
-| Poultry Bazaar — daily rate sheet | Daily broiler rates by region | https://www.poultrybazaar.net/daily-rate-sheet/ |
-| Poultry Bazaar — chick rates | Daily day-old-chick rates by region — the key leading-indicator variable | https://www.poultrybazaar.net/daily-rate-sheet/chick-rates/ |
-| Chicken Rate Today | Daily live/retail broiler rates by city; rates set by local Broiler Coordination Committees | https://chickenratetoday.in/ |
-| Agmarknet | Daily maize and soybean-meal mandi prices (feed cost index) | https://agmarknet.gov.in |
-| Internet Archive Wayback CDX API | Historical reconstruction of the above rate pages | http://web.archive.org/cdx/search/cdx |
+Status reflects checks run before building scrapers (see `scripts/wayback_feasibility.py` and the working `src/scrapers/egg_rates.py`).
+
+| Source | What it provides | Verified status | Link |
+|---|---|---|---|
+| NECC egg rates (e2necc) | Daily egg rate by zone, historical to 2009; month/year POST form | **Verified working** — the panel's dense historical backbone (~37 zones, full daily coverage) | https://e2necc.com/home/eggprice |
+| data.gov.in mandi price API | Daily maize/soybean market prices (state/district/market, min/max/modal) | Verified working; **current-snapshot only** (used for forward feed collection) | https://www.data.gov.in/resource/current-daily-price-various-commodities-various-markets-mandi |
+| Agmarknet | Multi-year daily maize and soybean-meal mandi prices (feed cost index) via report generator | Data exists; stateful ASP.NET portal (harder scrape) | https://agmarknet.gov.in |
+| Poultry Bazaar — daily rate sheet | Daily broiler rates by region | Live; **forward collection** (no dense archive) | https://www.poultrybazaar.net/daily-rate-sheet/ |
+| Poultry Bazaar — chick rates | Daily day-old-chick rates by region — the key leading-indicator variable | Live; **forward collection** (no dense archive) | https://www.poultrybazaar.net/daily-rate-sheet/chick-rates/ |
+| Chicken Rate Today | Daily live/retail broiler rates by city; rates set by local Broiler Coordination Committees | Live; forward collection | https://chickenratetoday.in/ |
+| Internet Archive Wayback CDX API | Attempted historical reconstruction of the rate pages | **Coverage too sparse** (~20–33 days total); retained only as scattered validation anchors | http://web.archive.org/cdx/search/cdx |
