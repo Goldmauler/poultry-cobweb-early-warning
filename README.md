@@ -1,6 +1,8 @@
 # Breaking the Poultry Cobweb: Forecasting Broiler Price Crashes in India Using Day-Old-Chick Prices as a Leading Indicator
 
-A Business Analytics case-study proposal reconstructing an unobservable national supply statistic from an observable market price, to forecast broiler farm-gate price crashes 42 days ahead.
+A Business Analytics case study that reconstructs an unobservable national supply statistic from an observable market price, forecasts broiler farm-gate price crashes 42 days ahead, and turns that forecast into a **"place / do not place this week"** chick-placement decision for the farmer.
+
+*Design target vs. what runs today: see the [scope note](#summary) in Section 4 and the [executable core](#10-reproducing-the-analysis) in Section 10.*
 
 ## Table of contents
 
@@ -47,6 +49,14 @@ Agriculture and agri-commodity markets — specifically the poultry supply chain
 ---
 
 ## 4. Business Problem Statement
+
+### Summary
+
+Indian broiler farmers and contract growers operate with thin margins and face a recurring **cobweb cycle** driven by the fixed 40–45-day biological production lag. When farm-gate prices are high, producers increase day-old chick placements; six weeks later these birds reach the market simultaneously, creating a supply glut that crashes prices below the cost of production. With feed costs now significantly elevated due to maize diversion to ethanol, these periodic crashes have become **severe financial shocks rather than manageable downturns**. Placement decisions are currently driven by today's visible spot price — which actively misleads farmers into buying chicks just before a glut — rather than any forward-looking supply signal.
+
+This study develops a data-driven **early-warning model that recommends optimal chick placement decisions** by forecasting regional broiler farm-gate prices 42 days ahead. It uses publicly observable day-old chick prices (as a leading proxy for placement volume), feed costs, seasonality, weather, and other factors to generate actionable **"place / do not place this week"** signals tailored to a producer's budget, risk tolerance, and regional market conditions.
+
+> **Scope note.** The paragraph above states the study's full design target. The chick → broiler forecasting layer and the producer-tailored recommendation layer both depend on the forward-collected chick and broiler series (Section 8.0), and are **not yet implemented**. What runs today is the executable core described in [Section 10](#10-reproducing-the-analysis), which validates the same modelling machinery on the one series with dense history. This boundary is stated wherever a claim is made.
 
 ### (a) What is the business problem?
 
@@ -155,6 +165,7 @@ There is **no Indian broiler hatchery report** — no official weekly or regiona
 4. **Forecast** regional broiler farm-gate price 42 days ahead.
 5. Benchmark against an **autoregressive baseline** (broiler price from its own history) — the model only matters if it beats this.
 6. Produce a **"placement glut warning"**: a regional signal advising against chick placement when a crash is forecast.
+7. Convert that forecast into an actionable **"place / do not place this week"** recommendation, tailored to the producer's **budget, risk tolerance, and regional market** — so the output is a decision, not just a number. *(Design-stage: depends on objectives 2–4 above.)*
 
 ---
 
@@ -185,6 +196,8 @@ The **10,000-record minimum is met by the historical backbone alone**: NECC egg 
 | 19 | day_of_week | categorical | derived |
 | 20 | month / season | categorical | derived |
 | — | **target: broiler_price at t+42** | numeric | derived from column 3 |
+
+**Weather** (attributes 15–16) supports the seasonality and heat-stress effects named in the Section 4 summary. **Producer budget and risk tolerance are not dataset attributes** — they are user-supplied parameters consumed by the recommendation layer (Objective 7), which converts the forecast into a place / do-not-place call at the producer's own risk threshold. They are collected per user at decision time, not scraped.
 
 ---
 
