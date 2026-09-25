@@ -29,9 +29,9 @@ A Business Analytics case study that assembles the multi-year Indian poultry pri
 
 | Field | Value |
 |---|---|
-| Student Name | _____________________ |
-| Register Number | CB.SC.U4CSE23___ |
-| Class / Section | _____________________ |
+| Student Name | VimalHariHar S K |
+| Register Number | CB.SC.U4CSE23254 |
+| Class / Section | B.Tech CSE - Section C |
 | Course | Business Analytics |
 | Programme | B.Tech CSE (3rd year), Amrita Vishwa Vidyapeetham |
 
